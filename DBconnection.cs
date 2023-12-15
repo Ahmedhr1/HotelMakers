@@ -1,1 +1,0 @@
-﻿skapa connection med databas
