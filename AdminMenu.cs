@@ -14,9 +14,10 @@ public class AdminMenu
         _db = db; 
     }
 
-    public async Task Main()
+    public async Task Main(NpgsqlDataSource db)
     {
-        Console.Write("Välj alternativ:");
+        Console.Clear();
+        Console.WriteLine("Välj alternativ:");
         Console.WriteLine("1. Add Booking");
         Console.WriteLine("2. Show Bookings");
 
@@ -25,21 +26,19 @@ public class AdminMenu
         if (!int.TryParse(Console.ReadLine(), out choice))
         {
             Console.WriteLine("Ogiltigt val. Försök igen.");
-          //  continue;
+            //  continue;
         }
 
 
         switch (choice)
         {
-            
+
             case 1:
                 Bookings bookings = new Bookings(_db);
                 await bookings.Book();
                 break;
-
-                break;
             case 2:
-               // AddBooking();
+                // AddBooking();
                 break;
             case 3:
                 Console.WriteLine("Avslutar programmet...");
@@ -51,4 +50,5 @@ public class AdminMenu
 
     }
 }
-
+    
+    

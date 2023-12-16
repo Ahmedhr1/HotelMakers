@@ -28,7 +28,17 @@ public class Bookings
             result += reader.GetInt32(0);
             result += "\n";
         }
+         Console.WriteLine(result);
+        Console.Write("Enter the hotel ID to proceed: ");
+        if (int.TryParse(Console.ReadLine(), out int selectedHotelId))
+        {
+            // Inline logic for handling the selected hotel
+            Console.WriteLine($"You selected Hotel ID {selectedHotelId}. Implement your logic here.");
 
-
+        }
+        else
+        {
+            Console.WriteLine("Invalid input. Please enter a valid hotel ID.");
+        }
     }
 }
