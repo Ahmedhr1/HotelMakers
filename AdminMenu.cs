@@ -17,7 +17,7 @@ public class AdminMenu
     public async Task Main(NpgsqlDataSource db)
     {
         Console.Clear();
-        Console.WriteLine("Välj alternativ:");
+        Console.WriteLine("Choose Option:");
         Console.WriteLine("1. Add Booking");
         Console.WriteLine("2. Show Bookings");
 

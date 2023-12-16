@@ -5,7 +5,7 @@ await using var db = NpgsqlDataSource.Create(dbUri);
 AdminMenu adminMenu = new AdminMenu(db);
 
 
-    Console.WriteLine("Press any key to...");
+    Console.WriteLine("Press any key...");
     Console.ReadKey();
 
 
