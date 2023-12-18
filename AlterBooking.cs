@@ -16,7 +16,10 @@ public class AlterBooking
         _db = db;
     }
 
-
+    // Fixa så att alla bokningar visas i en lista
+    // välj sedan en persons bokningar
+    //personens bokning ska visas som den visas i table
+    //därefter ska det finnas två val Alter eller Cancel Booking
 
 
 }

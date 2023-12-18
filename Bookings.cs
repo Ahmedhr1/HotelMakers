@@ -1,4 +1,5 @@
-﻿using Npgsql;
+﻿using HotelMakers_8;
+using Npgsql;
 using System;
 using System.Security.Cryptography.X509Certificates;
 
@@ -26,7 +27,10 @@ public class Bookings
             iterate += reader.GetInt32(0);
             iterate += " - ";
             iterate += reader.GetString(1);
+            iterate += " ";
+            iterate += reader.GetString(2);
             iterate += "\n";
+
         }
         Console.WriteLine(iterate);
 
@@ -35,11 +39,19 @@ public class Bookings
         if (int.TryParse(Console.ReadLine(), out int CustomerID))
         {
             Console.Clear();
-            Console.WriteLine($"You selected Customer ID {CustomerID}");
+
+            // så att namnet på det id du val selectas ut i terminalen
+            string qGetName = $"SELECT first_name FROM customers WHERE customer_id = {CustomerID}";
+            string customerName = await _db.CreateCommand(qGetName).ExecuteScalarAsync() as string;
+
+            Console.WriteLine($"Selected Customer: {customerName}");
+
+
+
         }
         else
         {
-            Console.WriteLine("Invalid input. Please enter a valid hotel ID.");
+            Console.WriteLine("Please enter a existing Customer ID.");
         }
 
 
@@ -49,10 +61,10 @@ public class Bookings
 
 
 
-    public async Task Book()
+    public async Task CreateBooking()
     {
         Console.Clear();
-        Console.WriteLine("Choose one of the following Hotels");
+        Console.WriteLine("Choose one of the following Hotels:");
         string qhotels = @"
           SELECT * FROM hotels
     
