@@ -1,4 +1,5 @@
-﻿using Npgsql;
+﻿using HotelMakers_8;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,34 +19,44 @@ public class AdminMenu
     {
         Console.Clear();
         Console.WriteLine("Choose Option:");
-        Console.WriteLine("1. Add Booking");
-        Console.WriteLine("2. Show Bookings");
+        Console.WriteLine("1. Register Customer");
+        Console.WriteLine("2. Add Booking");
+        Console.WriteLine("3. Show Bookings");
 
 
         int choice;
         if (!int.TryParse(Console.ReadLine(), out choice))
         {
             Console.WriteLine("Ogiltigt val. Försök igen.");
-            //  continue;
+            //continue;
         }
 
 
         switch (choice)
         {
-
+            // måste fixa så att man först kommer in som customer sedan fortsätter till bokning 
+            //När information ska in till någon table använd query insert into
+            // hur ska vi söka 
             case 1:
-                Bookings bookings = new Bookings(_db);
-                await bookings.Book();
+                //Register customer();
+                Customer customero = new Customer(_db);
+                await customero.InsertCustomer();
+
                 break;
             case 2:
-                // AddBooking();
+                Bookings customer = new Bookings(_db);
+                await customer.ChooseCustomer();
+                //Bookings bookings = new Bookings(_db);
+                //await bookings.Book();
                 break;
             case 3:
-                Console.WriteLine("Avslutar programmet...");
-                return;
-            default:
-                Console.WriteLine("Ogiltigt val. Försök igen.");
+                //Cancel/alter booking
+                // Showallbookings();
                 break;
+            case 4:              
+                default:
+                Console.WriteLine("Ogiltigt val. Försök igen.");
+                break; //fixa så att man loppar tillbaks till att välja igen.
         }
 
     }

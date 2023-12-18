@@ -10,6 +10,45 @@ public class Bookings
     {
         _db = db;
     }
+
+    public async Task ChooseCustomer()
+    {
+        string qchoose = @"
+          SELECT * FROM customers
+    
+         ";
+
+        string iterate = string.Empty;
+        NpgsqlDataReader reader = await _db.CreateCommand(qchoose).ExecuteReaderAsync();
+
+        while (await reader.ReadAsync())
+        {
+            iterate += reader.GetInt32(0);
+            iterate += " - ";
+            iterate += reader.GetString(1);
+            iterate += "\n";
+        }
+        Console.WriteLine(iterate);
+
+
+        Console.Write("Enter the Customer ID to choose: ");
+        if (int.TryParse(Console.ReadLine(), out int CustomerID))
+        {
+            Console.Clear();
+            Console.WriteLine($"You selected Customer ID {CustomerID}");
+        }
+        else
+        {
+            Console.WriteLine("Invalid input. Please enter a valid hotel ID.");
+        }
+
+
+
+
+    }
+
+
+
     public async Task Book()
     {
         Console.Clear();
@@ -35,8 +74,9 @@ public class Bookings
         Console.Write("Enter the hotel ID to proceed: ");
         if (int.TryParse(Console.ReadLine(), out int selectedHotelId))
         {
+            Console.Clear();
             Console.WriteLine($"You selected Hotel ID {selectedHotelId}");
-            showRoom show = new showRoom(_db);
+            Room show = new Room(_db);
             await show.ShowRoomsInSelectedHotel(selectedHotelId);
         }
         else
@@ -45,11 +85,11 @@ public class Bookings
         }
     }
 
-    public class showRoom
+    public class Room
     {
         NpgsqlDataSource _db;
 
-        public showRoom(NpgsqlDataSource db)
+        public Room(NpgsqlDataSource db)
         {
             _db = db;
         }
@@ -65,7 +105,7 @@ public class Bookings
 
             NpgsqlDataReader reader = await _db.CreateCommand(qroomsInSelectedHotel).ExecuteReaderAsync();
 
-            while (await reader.ReadAsync())
+            while (await reader.ReadAsync()) // denna läser ut rows tills det inte finns rows att läsa ut mer
             {
                 int roomId = reader.GetInt32(0);
                 string roomSize = reader.GetString(1);
@@ -74,6 +114,17 @@ public class Bookings
                 Console.WriteLine($"Room ID: {roomId}, Size: {roomSize}, Price: {price}");
             }
 
+            Console.Write("Enter the room ID to proceed: ");
+            if (int.TryParse(Console.ReadLine(), out int Roomid))
+            {
+                Console.Clear();
+                Console.WriteLine($"You selected Hotel ID {Roomid}");
+               
+            }
+            else
+            {
+                Console.WriteLine("Invalid input. Please enter a valid hotel ID.");
+            }
             reader.Close();
         }
 
