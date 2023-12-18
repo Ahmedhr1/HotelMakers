@@ -21,7 +21,7 @@ public class Customer
     public async Task InsertCustomer()
     {
         string insert = "INSERT INTO customers (customer_ID, first_name, last_name, email, birthdate) VALUES ($1, $2, $3, $4, $5)";
-        //string select = "SELECT * FROM customers";
+        string select = "SELECT * FROM customers";
 
         await using (var cmd = _db.CreateCommand(insert))
         {
@@ -51,7 +51,7 @@ public class Customer
             await cmd.ExecuteNonQueryAsync();
         }
 
-        //await using (var cmd = _db.CreateCommand(select))
+        await using (var cmd = _db.CreateCommand(select))
         await using (var reader = await cmd.ExecuteReaderAsync())
         {
             while (await reader.ReadAsync())

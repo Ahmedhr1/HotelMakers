@@ -27,7 +27,7 @@ public class AdminMenu
         int choice;
         if (!int.TryParse(Console.ReadLine(), out choice))
         {
-            Console.WriteLine("Ogiltigt val. Försök igen.");
+            Console.WriteLine("Invalid choice, Try again");
             //continue;
         }
 
@@ -56,7 +56,7 @@ public class AdminMenu
             case 4:              
                 default:
                 Console.WriteLine("Ogiltigt val. Försök igen.");
-                break; //fixa så att man loppar tillbaks till att välja igen.
+                break; //fixa så att man loopar tillbaks till att välja igen.
         }
 
     }

@@ -14,6 +14,8 @@ public class Bookings
 
     public async Task ChooseCustomer()
     {
+        Console.Clear();
+
         string qchoose = @"
           SELECT * FROM customers
     
@@ -34,17 +36,23 @@ public class Bookings
         }
         Console.WriteLine(iterate);
 
-
-        Console.Write("Enter the Customer ID to choose: ");
+        Console.Write("Enter Customer ID to choose Customer: ");
         if (int.TryParse(Console.ReadLine(), out int CustomerID))
         {
             Console.Clear();
 
             // så att namnet på det id du val selectas ut i terminalen
             string qGetName = $"SELECT first_name FROM customers WHERE customer_id = {CustomerID}";
-            string customerName = await _db.CreateCommand(qGetName).ExecuteScalarAsync() as string;
+            string Qgetlastname = $"SELECT last_name FROM customers WHERE customer_id = {CustomerID}";
 
-            Console.WriteLine($"Selected Customer: {customerName}");
+            string firstname = await _db.CreateCommand(qGetName).ExecuteScalarAsync() as string;
+            string lastname = await _db.CreateCommand(Qgetlastname).ExecuteScalarAsync() as string;
+
+            Bookings booking = new Bookings(_db);
+            await booking.CreateBooking();
+
+            Console.WriteLine($"Selected Customer: {firstname} {lastname}");
+           
 
 
 
@@ -54,13 +62,10 @@ public class Bookings
             Console.WriteLine("Please enter a existing Customer ID.");
         }
 
-
-
+      
 
     }
-
-
-
+    
     public async Task CreateBooking()
     {
         Console.Clear();
