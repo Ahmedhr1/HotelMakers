@@ -41,7 +41,6 @@ public class AdminMenu
                 //Register customer();
                 Customer customero = new Customer(_db);
                 await customero.InsertCustomer();
-
                 break;
             case 2:
                 Bookings customer = new Bookings(_db);

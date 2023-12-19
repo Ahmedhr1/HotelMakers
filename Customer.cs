@@ -41,12 +41,13 @@ public class Customer
 
             Console.Write("Enter Birthdate (YYYY-MM-DD): ");
             DateTime birthdate = DateTime.Parse(Console.ReadLine());
-            
+
             cmd.Parameters.AddWithValue(id);
             cmd.Parameters.AddWithValue(firstName);
             cmd.Parameters.AddWithValue(lastName);
             cmd.Parameters.AddWithValue(email);
             cmd.Parameters.AddWithValue(birthdate);
+
 
             await cmd.ExecuteNonQueryAsync();
         }
