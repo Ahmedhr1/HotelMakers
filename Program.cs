@@ -6,7 +6,7 @@ await using var db = NpgsqlDataSource.Create(dbUri);
 AdminMenu adminMenu = new AdminMenu(db);
 
 
-    Console.WriteLine("Welcome to HotelMakers!!!");
+    Console.WriteLine("Welcome to HolidayMakers8!");
     Console.ReadKey();
 
 
