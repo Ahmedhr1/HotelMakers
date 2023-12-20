@@ -39,8 +39,8 @@ public class AdminMenu
                 await customero.InsertCustomer();
                 break;
             case 2:
-                Bookings customer = new Bookings(_db);
-                await customer.ChooseCustomer();
+                Bookings choosing = new Bookings(_db);
+                await choosing.ChooseCustomer();
                 break;
             case 3:
                 //Cancel/alter booking

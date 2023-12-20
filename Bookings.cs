@@ -1,5 +1,6 @@
 ﻿using HotelMakers_8;
 using Npgsql;
+using Npgsql.Internal.Postgres;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -13,8 +14,14 @@ public class Bookings
     {
         _db = db;
     }
+    
+    private int _customerId;
+    private int _hotelId;
+    private int _roomId;
+    private DateOnly _checkInDate;
+    private DateOnly _checkOutDate;
 
-    public async Task ChooseCustomer()
+    public async Task<int?> ChooseCustomer()
     {
         Console.Clear();
 
@@ -34,12 +41,11 @@ public class Bookings
             iterate += " ";
             iterate += reader.GetString(2);
             iterate += "\n";
-
-
         }
         Console.WriteLine(iterate);
 
         Console.Write("Enter Customer ID to choose Customer: ");
+        
         if (int.TryParse(Console.ReadLine(), out int CustomerID))
         {
             Console.Clear();
@@ -51,22 +57,21 @@ public class Bookings
             string firstname = await _db.CreateCommand(qGetName).ExecuteScalarAsync() as string;
             string lastname = await _db.CreateCommand(Qgetlastname).ExecuteScalarAsync() as string;
 
+            Console.WriteLine($"Selected Customer: {firstname} {lastname}");
+
+
             Bookings booking = new Bookings(_db);
             await booking.CreateBooking();
 
-            Console.WriteLine($"Selected Customer: {firstname} {lastname}");
-           
 
-
-
+            _customerId = CustomerID;
+            return CustomerID;
         }
         else
         {
             Console.WriteLine("Please enter a existing Customer ID.");
+            return null;
         }
-
-      
-
     }
 
     public async Task attractions()
@@ -116,12 +121,16 @@ public class Bookings
                         Console.WriteLine("Hotels with Restaurants:");
                         Console.WriteLine();
 
-                        string RestaurantQuery = "SELECT hotels.hotel_id, hotels.hotel_name,hotels.rating, locations.city, locations.address, hotel_entertainment.entertainment_name FROM hotels LEFT JOIN locations using (location_id) LEFT JOIN hotel_entertainment using (hotel_id) WHERE entertainment_name = 'Restaurant'; ";
+                        string RestaurantQuery = 
+                          @"SELECT hotels.hotel_id, hotels.hotel_name, hotels.rating, locations.city, locations.address, hotel_entertainment.entertainment_name 
+                          FROM hotels LEFT JOIN locations using (location_id) 
+                          LEFT JOIN hotel_entertainment using (hotel_id) 
+                          WHERE entertainment_name = 'Restaurant'; ";
 
                         await using (var cmd = _db.CreateCommand(RestaurantQuery))
                         {
 
-                            await using (var reader = cmd.ExecuteReader())
+                            await using (var reader = cmd.ExecuteReader()) 
                             {
                                 while (await reader.ReadAsync())
                                 {
@@ -142,8 +151,12 @@ public class Bookings
                         Console.WriteLine("Hotels with Kids Clubs:");
                         Console.WriteLine();
 
-                        string KidsclubQuery = "SELECT hotels.hotel_id, hotels.hotel_name,hotels.rating, locations.city, locations.address, hotel_entertainment.entertainment_name FROM hotels LEFT JOIN locations using (location_id) LEFT JOIN hotel_entertainment using (hotel_id) WHERE entertainment_name = 'Kids_Club'; ";
-                        await using (var cmd = _db.CreateCommand(KidsclubQuery))
+                          string KidsClubsQuery = @"SELECT hotels.hotel_id, hotels.hotel_name, hotels.rating, locations.city, locations.address, hotel_entertainment.entertainment_name 
+                          FROM hotels LEFT JOIN locations using (location_id) 
+                          LEFT JOIN hotel_entertainment using (hotel_id) 
+                          WHERE entertainment_name = 'Kids_Club'; "; 
+                    
+                        await using (var cmd = _db.CreateCommand(KidsClubsQuery))
                         await using (var reader = cmd.ExecuteReader())
                         {
                             while (await reader.ReadAsync())
@@ -167,8 +180,12 @@ public class Bookings
                         Console.WriteLine("Hotels with Night Fun:");
                         Console.WriteLine();
 
-                        string NightFunQuery = "SELECT hotels.hotel_id, hotels.hotel_name,hotels.rating, locations.city, locations.address, hotel_entertainment.entertainment_name FROM hotels LEFT JOIN locations using (location_id) LEFT JOIN hotel_entertainment using (hotel_id) WHERE entertainment_name = 'Night_Fun'; ";
-                        await using (var cmd = _db.CreateCommand(NightFunQuery))
+                          string NightFunQ = @"SELECT hotels.hotel_id, hotels.hotel_name, hotels.rating, locations.city, locations.address, hotel_entertainment.entertainment_name 
+                          FROM hotels LEFT JOIN locations using (location_id) 
+                          LEFT JOIN hotel_entertainment using (hotel_id) 
+                          WHERE entertainment_name = 'Night_Fun'; "; 
+
+                        await using (var cmd = _db.CreateCommand(NightFunQ))
                         await using (var reader = cmd.ExecuteReader())
                         {
                             while (await reader.ReadAsync())
@@ -205,9 +222,8 @@ public class Bookings
 
     //fixa så att man i slutet av bokningen lägger in vilka dates
 
-    public async Task CreateBooking()
+    public async Task<int> CreateBooking()
     {
-        Console.Clear();
 
 
         Bookings Attraction = new Bookings(_db);
@@ -234,39 +250,35 @@ public class Bookings
         Console.WriteLine(result);
 
         Console.Write("Enter the hotel ID to proceed: ");
-        if (int.TryParse(Console.ReadLine(), out int selectedHotelId))
+        if (int.TryParse(Console.ReadLine(), out int HotelId))
         {
             Console.Clear();
-            Console.WriteLine($"You selected Hotel ID {selectedHotelId}");
-            Room show = new Room(_db);
-            await show.ShowRoomsInSelectedHotel(selectedHotelId);
+            Console.WriteLine($"You selected Hotel ID {HotelId}");
+
+            Bookings sshow = new Bookings(_db);
+            await sshow.ShowRooms(HotelId);
         }
         else
         {
             
             Console.WriteLine("Invalid input. Please enter a valid hotel ID.");
         }
+
+        _hotelId = HotelId;
+        //Bookings show = new Bookings(_db);
+        //await show.ShowRooms(selectedHotelId);
+        return _hotelId;
     }
 
-
-
-    public class Room
-    {
-        NpgsqlDataSource _db;
-
-        public Room(NpgsqlDataSource db)
+        public async Task<int> ShowRooms(int HotelId)
         {
-            _db = db;
-        }
-        public async Task ShowRoomsInSelectedHotel(int selectedHotelId)
-        {
-            Console.WriteLine($"Rooms in the selected hotel (Hotel ID: {selectedHotelId})");
+            Console.WriteLine($"Rooms in the selected hotel (Hotel ID: {HotelId})");
             Console.WriteLine();
 
             string qroomsInSelectedHotel = $@"
                  SELECT room_id, size, price
                  FROM rooms
-                 WHERE hotel_id = {selectedHotelId}
+                 WHERE hotel_id = {HotelId}
                  ";
 
             NpgsqlDataReader reader = await _db.CreateCommand(qroomsInSelectedHotel).ExecuteReaderAsync();
@@ -284,15 +296,73 @@ public class Bookings
             if (int.TryParse(Console.ReadLine(), out int Roomid))
             {
                 Console.Clear();
-                Console.WriteLine($"You selected Hotel ID {Roomid}");
+                Console.WriteLine($"You selected Room ID {Roomid}");
+                await BookingDates();
                
             }
             else
             {
                 Console.WriteLine("Invalid input. Please enter a valid hotel ID.");
             }
-            reader.Close();
+
+            _roomId = Roomid;
+            return _roomId;
+        }
+
+
+    public async Task<DateOnly> BookingDates()
+    {
+        Console.WriteLine("Enter Check-in date: ");
+        DateOnly Checkin = DateOnly.Parse(Console.ReadLine());
+
+        Console.WriteLine("Enter Check-out date: ");
+        DateOnly Checkout = DateOnly.Parse(Console.ReadLine());
+
+        Console.WriteLine($"Youre stay is from {Checkin} to {Checkout}");
+
+        Checkout = _checkOutDate; 
+
+        return _checkOutDate;
+
+
+    }
+
+    public async Task Addons() { }
+
+    public async Task InsertAll(int CustomerID, int hotelID, int room_id, DateOnly CheckIn, DateOnly CheckOut)
+    {
+
+        string insert = $@"INSERT INTO bookedrooms (room_id, customer_id, check_in, check_out) 
+                        VALUES({CustomerID}, {room_id}, {hotelID}, {CheckIn}, {CheckOut})";
+
+        await using (var cmd = _db.CreateCommand(insert))
+        {
+
+            cmd.Parameters.AddWithValue("room_id", room_id);
+            cmd.Parameters.AddWithValue("customer_id", CustomerID);
+            cmd.Parameters.AddWithValue("hotel_id", hotelID);
+            cmd.Parameters.AddWithValue("check_in", CheckIn);
+            cmd.Parameters.AddWithValue("check_out", CheckOut);
+
+            await using (var reader = await cmd.ExecuteReaderAsync()) ;
+
         }
 
     }
+    public async Task BuildBooking()
+    {
+        int customerId = (int)await ChooseCustomer();
+        int hotelId = await CreateBooking();
+        int roomId = await ShowRooms(hotelId);
+
+        DateOnly bookingDate = (DateOnly)await BookingDates();
+        DateOnly checkIn = bookingDate;
+        DateOnly checkOut = bookingDate;
+
+        await InsertAll(_customerId, _hotelId, _roomId, _checkInDate, _checkOutDate);
+
+     
+    }
+
+
 }
