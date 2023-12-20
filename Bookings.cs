@@ -2,6 +2,7 @@
 using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
 public class Bookings
@@ -70,78 +71,139 @@ public class Bookings
 
     public async Task attractions()
     {
-        Console.WriteLine("What attractions would you like");
-        Console.WriteLine("Type 1 for: Pool");
-        Console.WriteLine("Type 2 for: Restaurant");
-        Console.WriteLine("Type 3 for: Kids Club");
-        Console.WriteLine("Type 4 for: Night Fun");
+        
+            Console.WriteLine("What attractions would you like");
+            Console.WriteLine("Type 1 for: Pool");
+            Console.WriteLine("Type 2 for: Restaurant");
+            Console.WriteLine("Type 3 for: Kids Club");
+            Console.WriteLine("Type 4 for: Night Fun");
 
-
-
-
-        int choosing;
-        if (int.TryParse(Console.ReadLine(), out choosing))
-        {
-            switch (choosing)
+            if (int.TryParse(Console.ReadLine(), out int choosing) && choosing >= 1 && choosing <= 4)
             {
-               
-                case 1:
-                    Console.Clear();
-                    Console.WriteLine("Hotels with Pool:");
+                switch (choosing)
+                {
 
-                    string poolQuery = "SELECT hotels.hotel_id, hotels.hotel_name,hotels.rating, locations.city, locations.address, hotel_entertainment.entertainment_name FROM hotels LEFT JOIN locations using (location_id) LEFT JOIN hotel_entertainment using (hotel_id); ";
+                    case 1:
+                        Console.Clear();
+                        Console.WriteLine("Hotels with Pool:");
+                        Console.WriteLine();
 
-                    await using (var cmd = _db.CreateCommand(poolQuery))
-                    {
+                        string poolQuery = "SELECT hotels.hotel_id, hotels.hotel_name,hotels.rating, locations.city, locations.address, hotel_entertainment.entertainment_name FROM hotels LEFT JOIN locations using (location_id) LEFT JOIN hotel_entertainment using (hotel_id) WHERE entertainment_name = 'Pool'; ";
 
-                      await using (var reader = cmd.ExecuteReader())
-                       {
+                        await using (var cmd = _db.CreateCommand(poolQuery))
+                        {
+
+                            await using (var reader = cmd.ExecuteReader())
+                            {
+                                while (await reader.ReadAsync())
+                                {
+                                    Console.WriteLine($"Hotel ID: {reader.GetInt32(0)}");
+                                    Console.WriteLine($"Hotel Name: {reader.GetString(1)}");
+                                    Console.WriteLine($"Hotel Rating: {reader.GetDecimal(2)}");
+                                    Console.WriteLine($"City: {reader.GetString(3)}");
+                                    Console.WriteLine($"Address: {reader.GetString(4)}");
+                                    Console.WriteLine($"Entertainment Name: {reader.GetString(5)}");
+                                    Console.WriteLine();
+                                }
+                            }
+
+                        }
+
+                    break;
+
+                    case 2:
+                        Console.Clear();
+                        Console.WriteLine("Hotels with Restaurants:");
+                        Console.WriteLine();
+
+                        string RestaurantQuery = "SELECT hotels.hotel_id, hotels.hotel_name,hotels.rating, locations.city, locations.address, hotel_entertainment.entertainment_name FROM hotels LEFT JOIN locations using (location_id) LEFT JOIN hotel_entertainment using (hotel_id) WHERE entertainment_name = 'Restaurant'; ";
+
+                        await using (var cmd = _db.CreateCommand(RestaurantQuery))
+                        {
+
+                            await using (var reader = cmd.ExecuteReader())
+                            {
+                                while (await reader.ReadAsync())
+                                {
+                                    Console.WriteLine($"Hotel ID: {reader.GetInt32(0)}");
+                                    Console.WriteLine($"Hotel Name: {reader.GetString(1)}");
+                                    Console.WriteLine($"Hotel Rating: {reader.GetDecimal(2)}");
+                                    Console.WriteLine($"City: {reader.GetString(3)}");
+                                    Console.WriteLine($"Address: {reader.GetString(4)}");
+                                    Console.WriteLine($"Entertainment Name: {reader.GetString(5)}");
+                                    Console.WriteLine();
+                                }
+                            }
+
+                        }
+                        break;
+                    case 3:
+                        Console.Clear();
+                        Console.WriteLine("Hotels with Kids Clubs:");
+                        Console.WriteLine();
+
+                        string KidsclubQuery = "SELECT hotels.hotel_id, hotels.hotel_name,hotels.rating, locations.city, locations.address, hotel_entertainment.entertainment_name FROM hotels LEFT JOIN locations using (location_id) LEFT JOIN hotel_entertainment using (hotel_id) WHERE entertainment_name = 'Kids_Club'; ";
+                        await using (var cmd = _db.CreateCommand(KidsclubQuery))
+                        await using (var reader = cmd.ExecuteReader())
+                        {
                             while (await reader.ReadAsync())
                             {
-                                Console.WriteLine($"Hotel ID: {reader.GetInt32(0)}"); 
+                                Console.WriteLine($"Hotel ID: {reader.GetInt32(0)}");
                                 Console.WriteLine($"Hotel Name: {reader.GetString(1)}");
-                                Console.WriteLine($"Hotel Rating: {reader.GetDecimal(2)}");
+                                Console.WriteLine($"Rating: {reader.GetDecimal(2)}");
                                 Console.WriteLine($"City: {reader.GetString(3)}");
                                 Console.WriteLine($"Address: {reader.GetString(4)}");
-                                Console.WriteLine($"Entertainment Name: {reader.GetString(5)}");
-                                Console.WriteLine(); 
+                                Console.WriteLine($"Entertainments: {reader.GetString(5)}");
+                                Console.WriteLine();
+                            }
 
+
+
+
+                        }
+                        break;
+                    case 4:
+                        Console.Clear();
+                        Console.WriteLine("Hotels with Night Fun:");
+                        Console.WriteLine();
+
+                        string NightFunQuery = "SELECT hotels.hotel_id, hotels.hotel_name,hotels.rating, locations.city, locations.address, hotel_entertainment.entertainment_name FROM hotels LEFT JOIN locations using (location_id) LEFT JOIN hotel_entertainment using (hotel_id) WHERE entertainment_name = 'Night_Fun'; ";
+                        await using (var cmd = _db.CreateCommand(NightFunQuery))
+                        await using (var reader = cmd.ExecuteReader())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                Console.WriteLine($"Hotel ID: {reader.GetInt32(0)}");
+                                Console.WriteLine($"Hotel Name: {reader.GetString(1)}");
+                                Console.WriteLine($"Rating: {reader.GetDecimal(2)}");
+                                Console.WriteLine($"City: {reader.GetString(3)}");
+                                Console.WriteLine($"Address: {reader.GetString(4)}");
+                                Console.WriteLine($"Entertainments: {reader.GetString(5)}");
+                                Console.WriteLine();
+                               
                             }
                         }
 
-                    }
+                        break;
 
-                break;
-
-                case 2:
-                    Console.WriteLine("Hotels with Restaurants:");
-
-
-                    break;
-                case 3:
-                    //Cancel/alter booking
-                    // Showallbookings();
-                    break;
-                case 4:
-
-                default:
-                    Console.WriteLine("Ogiltigt val. Försök igen.");
-                    break; //fixa så att man loopar tillbaks till att välja igen.
+                    default:
+                        Console.WriteLine("Invalid choice. Try again.");
+                        break; //fixa så att man loopar tillbaks till att välja igen.
+                }
             }
-        }
-        else
-        {
-            Console.WriteLine("Invalid choice, Try again");
-            //continue;
+            else
+            {
+                Console.WriteLine("Invalid choice. Try again");
+                //continue;
 
 
-        }
+            }
 
-
+        
 
     }
 
-
+    //fixa så att man i slutet av bokningen lägger in vilka dates
 
     public async Task CreateBooking()
     {
@@ -151,6 +213,7 @@ public class Bookings
         Bookings Attraction = new Bookings(_db);
         await Attraction.attractions();
 
+        Console.ReadKey();
 
         Console.WriteLine("Choose one of the following Hotels:");
         string qhotels = @"
@@ -180,6 +243,7 @@ public class Bookings
         }
         else
         {
+            
             Console.WriteLine("Invalid input. Please enter a valid hotel ID.");
         }
     }
@@ -197,6 +261,7 @@ public class Bookings
         public async Task ShowRoomsInSelectedHotel(int selectedHotelId)
         {
             Console.WriteLine($"Rooms in the selected hotel (Hotel ID: {selectedHotelId})");
+            Console.WriteLine();
 
             string qroomsInSelectedHotel = $@"
                  SELECT room_id, size, price

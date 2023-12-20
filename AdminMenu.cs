@@ -34,19 +34,13 @@ public class AdminMenu
 
         switch (choice)
         {
-            // måste fixa så att man först kommer in som customer sedan fortsätter till bokning 
-            //När information ska in till någon table använd query insert into
-            // hur ska vi söka 
             case 1:
-                //Register customer();
                 Customer customero = new Customer(_db);
                 await customero.InsertCustomer();
                 break;
             case 2:
                 Bookings customer = new Bookings(_db);
                 await customer.ChooseCustomer();
-                //Bookings bookings = new Bookings(_db);
-                //await bookings.Book();
                 break;
             case 3:
                 //Cancel/alter booking
