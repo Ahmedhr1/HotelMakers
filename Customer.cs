@@ -62,6 +62,14 @@ public class Customer
                 Console.WriteLine(reader.GetString(3));
             }
         }
+
+
+
+
+
+
+
+
     }
 }
 

@@ -3,6 +3,7 @@ using Npgsql;
 using Npgsql.Internal.Postgres;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
@@ -20,6 +21,7 @@ public class Bookings
     private int _roomId;
     private DateOnly _checkInDate;
     private DateOnly _checkOutDate;
+    private int _addon;
 
     public async Task<int?> ChooseCustomer()
     {
@@ -44,7 +46,7 @@ public class Bookings
         }
         Console.WriteLine(iterate);
 
-        Console.Write("Enter Customer ID to choose Customer: ");
+        Console.Write("Enter Customer ID to choose Customer: "); 
         
         if (int.TryParse(Console.ReadLine(), out int CustomerID))
         {
@@ -60,8 +62,8 @@ public class Bookings
             Console.WriteLine($"Selected Customer: {firstname} {lastname}");
 
 
-            Bookings booking = new Bookings(_db);
-            await booking.CreateBooking();
+            //Bookings booking = new Bookings(_db);
+            //await booking.CreateBooking();
 
 
             _customerId = CustomerID;
@@ -226,10 +228,9 @@ public class Bookings
     {
 
 
-        Bookings Attraction = new Bookings(_db);
-        await Attraction.attractions();
-
-        Console.ReadKey();
+       // Bookings Attraction = new Bookings(_db);
+        //await Attraction.attractions();
+        Console.WriteLine("---------------------------------");
 
         Console.WriteLine("Choose one of the following Hotels:");
         string qhotels = @"
@@ -297,7 +298,6 @@ public class Bookings
             {
                 Console.Clear();
                 Console.WriteLine($"You selected Room ID {Roomid}");
-                await BookingDates();
                
             }
             else
@@ -310,58 +310,145 @@ public class Bookings
         }
 
 
-    public async Task<DateOnly> BookingDates()
+    public async Task<(DateOnly CheckIn, DateOnly CheckOut)> BookingDates()
     {
         Console.WriteLine("Enter Check-in date: ");
-        DateOnly Checkin = DateOnly.Parse(Console.ReadLine());
-
-        Console.WriteLine("Enter Check-out date: ");
-        DateOnly Checkout = DateOnly.Parse(Console.ReadLine());
-
-        Console.WriteLine($"Youre stay is from {Checkin} to {Checkout}");
-
-        Checkout = _checkOutDate; 
-
-        return _checkOutDate;
-
-
-    }
-
-    public async Task Addons() { }
-
-    public async Task InsertAll(int CustomerID, int hotelID, int room_id, DateOnly CheckIn, DateOnly CheckOut)
-    {
-
-        string insert = $@"INSERT INTO bookedrooms (room_id, customer_id, check_in, check_out) 
-                        VALUES({CustomerID}, {room_id}, {hotelID}, {CheckIn}, {CheckOut})";
-
-        await using (var cmd = _db.CreateCommand(insert))
+        if (DateOnly.TryParse(Console.ReadLine(), out DateOnly checkIn))
         {
+            Console.WriteLine("Enter Check-out date: ");
+            if (DateOnly.TryParse(Console.ReadLine(), out DateOnly checkOut))
+            {
+                Console.Clear();
+                Console.WriteLine($"Your stay is from {checkIn} to {checkOut}");
 
-            cmd.Parameters.AddWithValue("room_id", room_id);
-            cmd.Parameters.AddWithValue("customer_id", CustomerID);
-            cmd.Parameters.AddWithValue("hotel_id", hotelID);
-            cmd.Parameters.AddWithValue("check_in", CheckIn);
-            cmd.Parameters.AddWithValue("check_out", CheckOut);
+                _checkInDate = checkIn;
+                _checkOutDate = checkOut;
 
-            await using (var reader = await cmd.ExecuteReaderAsync()) ;
-
+                return (checkIn, checkOut);
+            }
+            else
+            {
+                Console.WriteLine("Invalid Check-out date format. Please use yyyy-MM-dd.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Invalid Check-in date format. Please use yyyy-MM-dd.");
         }
 
+        // Returnar default ifall det inte går
+        return (default, default); 
     }
+
+
+    public async Task Addons(int HotelId)
+    {
+        string Qaddons = $@"
+                 SELECT addon_id, price
+                 FROM hotelsto_addons
+                 WHERE hotel_id = {HotelId}
+                 ";
+
+        NpgsqlDataReader reader = await _db.CreateCommand(Qaddons).ExecuteReaderAsync();
+
+        while (await reader.ReadAsync()) // läser ut rows tills det inte finns rows att läsa ut mer
+        {
+            int addonid = reader.GetInt32(0);
+            decimal price = reader.GetDecimal(1);
+
+            Console.WriteLine($"Addon: {addonid}, Price: {price}");
+        }
+
+        if (int.TryParse(Console.ReadLine(), out int addon) && addon >= 1 && addon <= 3)
+        {
+
+            switch (addon)
+            {
+                case 1:
+                    Console.Clear();
+                    Console.WriteLine("Extrabed Added");
+                    Console.WriteLine();
+                    _addon = addon;
+                    break;
+
+                case 2:
+                    Console.Clear();
+                    Console.WriteLine("Halfboard Added");
+                    Console.WriteLine();
+                    _addon = addon;
+
+                    break;
+
+                case 3:
+                    Console.Clear();
+                    Console.WriteLine("Allinclusive Added");
+                    _addon = addon;
+                    break;
+
+            }
+        }
+
+        else
+        {
+            Console.WriteLine("please enter a valid number!");
+            Console.Clear();
+            Addons(HotelId);
+        }
+
+
+
+
+
+    }
+
+
+
+
+    public async Task InsertAll(int customerId, int hotelId, int roomId, DateOnly checkIn, DateOnly checkOut, int addon)
+    {
+
+        Console.WriteLine($"CustomerID: {_customerId}");
+        Console.WriteLine($"HotelID: {_hotelId}");
+        Console.WriteLine($"RoomID: {_roomId}");
+        Console.WriteLine($"CheckInDate: {_checkInDate}");
+        Console.WriteLine($"CheckOutDate: {_checkOutDate}");
+        Console.WriteLine($"Addons: {_addon}");
+        Console.ReadKey();
+
+        string insert = @"
+        INSERT INTO bookedrooms (room_id, customer_id, check_in, check_out, hotel_id,addon_id)
+        VALUES (@room_id, @customer_id, @check_in, @check_out, @hotel_id,@addon_id)";
+
+        await using (var cmd = _db.CreateCommand(insert))
+
+        {
+            cmd.Parameters.AddWithValue("room_id", roomId);
+            cmd.Parameters.AddWithValue("customer_id", customerId);
+            cmd.Parameters.AddWithValue("check_in", checkIn);
+            cmd.Parameters.AddWithValue("check_out", checkOut);
+            cmd.Parameters.AddWithValue("hotel_id", hotelId);
+            cmd.Parameters.AddWithValue("addon_id", addon);
+
+
+            await cmd.ExecuteNonQueryAsync();
+        }
+        
+    }
+
+    
+
     public async Task BuildBooking()
     {
         int customerId = (int)await ChooseCustomer();
+        await attractions();
         int hotelId = await CreateBooking();
         int roomId = await ShowRooms(hotelId);
+        (DateOnly checkIn, DateOnly checkOut) = await BookingDates();
+        await Addons(hotelId);
+        await InsertAll(_customerId, _hotelId, _roomId, _checkInDate, _checkOutDate, _addon);
 
-        DateOnly bookingDate = (DateOnly)await BookingDates();
-        DateOnly checkIn = bookingDate;
-        DateOnly checkOut = bookingDate;
+        // lägger in slutvärden genom hela bokningen med hjälp av fields 
 
-        await InsertAll(_customerId, _hotelId, _roomId, _checkInDate, _checkOutDate);
-
-     
     }
 
 

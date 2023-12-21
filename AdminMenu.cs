@@ -40,16 +40,19 @@ public class AdminMenu
                 break;
             case 2:
                 Bookings choosing = new Bookings(_db);
-                await choosing.ChooseCustomer();
+                await choosing.BuildBooking();
                 break;
             case 3:
-                //Cancel/alter booking
-                // Showallbookings();
+                AlterBooking show = new AlterBooking(_db);
+                await show.ShowAllBookings();
+
                 break;
-            case 4:              
+            case 4:         
+                //search with price/distance med order by
+
                 default:
                 Console.WriteLine("Ogiltigt val. Försök igen.");
-                break; //fixa så att man loopar tillbaks till att välja igen.
+                break; 
         }
 
     }
