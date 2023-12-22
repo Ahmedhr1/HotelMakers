@@ -10,7 +10,7 @@ AdminMenu adminMenu = new AdminMenu(db);
     Console.ReadKey();
 
 
-// Call the Book method
+// Calla Book methoden
 await adminMenu.Main(db);
 
 

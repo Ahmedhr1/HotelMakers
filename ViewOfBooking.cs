@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace HotelMakers_8;
 
-public class AlterBooking
+public class ViewOfBooking
 {
     NpgsqlDataSource _db;
 
-    public AlterBooking(NpgsqlDataSource db)
+    public ViewOfBooking(NpgsqlDataSource db)
     {
         _db = db;
     }
@@ -19,7 +19,8 @@ public class AlterBooking
     public async Task ShowAllBookings()
     {
         Console.Clear();
-        Console.WriteLine("All Bookings:");
+        Console.WriteLine("All Bookings");
+        Console.WriteLine("---------------------------------");
 
         string query = @"SELECT
                            customer_id,
@@ -52,9 +53,11 @@ public class AlterBooking
 
 
             }
+            Console.WriteLine();
+            Console.Write("Type CustomerID: ");
+
             if (int.TryParse(Console.ReadLine(), out int customerID))
             {
-
 
                 await ShowPersonBookings(customerID);
 
@@ -86,44 +89,24 @@ public class AlterBooking
 
             }
         }
-        
+
+
+        AlterBookings showin = new AlterBookings(_db);
+        await showin.AlterBooking(customerID);
     }
+
+    
+
 }
 
-//public async Task AlterOrCancelBooking(int customerID)
-//{
-//    Console.Clear();
-//    Console.WriteLine($"CustomerID: {customerID}");
-//    Console.WriteLine("Choose an option:");
-//    Console.WriteLine("1. Alter Booking");
-//    Console.WriteLine("2. Cancel Booking");
 
-//    if (!int.TryParse(Console.ReadLine(), out int choice))
-//    {
-//        Console.WriteLine("Invalid choice, Try again");
-//        return;
-//    }
 
-//    switch (choice)
-//    {
-//        case 1:
-//            //await ShowAllBookings();
-//            string Qupdate = @$"UPDATE bookedrooms
-//                               WHERE customer_id = {customerID} ";
 
-//            Console.WriteLine("Implement logic to alter the booking.");
-//            break;
-//        case 2:
-//            // Implement logic to cancel the booking
-//            Console.WriteLine("Implement logic to cancel the booking.");
-//            break;
-//        default:
-//            Console.WriteLine("Invalid choice. Try again.");
-//            break;
-//    }
-    
-    
-//}
+
+
+
+
+
 
 
 // Fixa så att alla bokningar visas i en lista

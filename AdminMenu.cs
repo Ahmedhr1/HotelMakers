@@ -43,14 +43,15 @@ public class AdminMenu
                 await choosing.BuildBooking();
                 break;
             case 3:
-                AlterBooking show = new AlterBooking(_db);
+                ViewOfBooking show = new ViewOfBooking(_db);
                 await show.ShowAllBookings();
 
                 break;
-            case 4:         
-                //search with price/distance med order by
+            case 4:
+                
+            //search with price/distance med order by
 
-                default:
+            default:
                 Console.WriteLine("Ogiltigt val. Försök igen.");
                 break; 
         }

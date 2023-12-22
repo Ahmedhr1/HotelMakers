@@ -320,7 +320,7 @@ public class Bookings
             {
                 Console.Clear();
                 Console.WriteLine($"Your stay is from {checkIn} to {checkOut}");
-
+                Console.WriteLine("-----------------------------------------");
                 _checkInDate = checkIn;
                 _checkOutDate = checkOut;
 
@@ -344,19 +344,23 @@ public class Bookings
     public async Task Addons(int HotelId)
     {
         string Qaddons = $@"
-                 SELECT addon_id, price
-                 FROM hotelsto_addons
+                 SELECT addon_id, addon_name, price
+                 FROM addons
+                 JOIN hotelsto_addons using (addon_id)
                  WHERE hotel_id = {HotelId}
                  ";
 
+
         NpgsqlDataReader reader = await _db.CreateCommand(Qaddons).ExecuteReaderAsync();
+        Console.WriteLine("Would You like any addons?");
 
         while (await reader.ReadAsync()) // läser ut rows tills det inte finns rows att läsa ut mer
         {
             int addonid = reader.GetInt32(0);
-            decimal price = reader.GetDecimal(1);
+            string addonname = reader.GetString(1);
+            decimal price = reader.GetDecimal(2);
 
-            Console.WriteLine($"Addon: {addonid}, Price: {price}");
+            Console.WriteLine($"AddonId: {addonid}, {addonname} Price: {price}");
         }
 
         if (int.TryParse(Console.ReadLine(), out int addon) && addon >= 1 && addon <= 3)
